@@ -69,3 +69,21 @@ def test_label_leakage_data_check_input_formats():
                                                              DataCheckWarning("Column '1' is 80.0% or more correlated with the target", "LabelLeakageDataCheck"),
                                                              DataCheckWarning("Column '2' is 80.0% or more correlated with the target", "LabelLeakageDataCheck"),
                                                              DataCheckWarning("Column '3' is 80.0% or more correlated with the target", "LabelLeakageDataCheck")]
+
+
+
+def test_label_leakage_data_check_mutual_info():
+    y = pd.Series([1, 0, 1, 1])
+    X = pd.DataFrame()
+    X["a"] = y * 3
+    X["b"] = y - 1
+    X["c"] = y / 10
+    X["d"] = ~y
+    X["e"] = [0, 0, 0, 0]
+    y = y.astype(bool)
+
+    label_leakage_check = LabelLeakageDataCheck(pct_corr_threshold=0.5, method='mutual_info')
+    assert label_leakage_check.validate(X, y) == [DataCheckWarning("Column 'a' is 50.0% or more correlated with the target", "LabelLeakageDataCheck"),
+                                                  DataCheckWarning("Column 'b' is 50.0% or more correlated with the target", "LabelLeakageDataCheck"),
+                                                  DataCheckWarning("Column 'c' is 50.0% or more correlated with the target", "LabelLeakageDataCheck"),
+                                                  DataCheckWarning("Column 'd' is 50.0% or more correlated with the target", "LabelLeakageDataCheck")]
